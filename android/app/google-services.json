@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "602688681639",
+    "project_id": "tour-info-flutter",
+    "storage_bucket": "tour-info-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602688681639:android:ef6f6002eec6928943cd82",
+        "android_client_info": {
+          "package_name": "cse.netsys.tour_info"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "602688681639-mpdn7smsgp40bgardk8nqh3l7kjogpum.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYy6zOSGYG5KiOuwNAumwVmcr1cnfloPE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "602688681639-mpdn7smsgp40bgardk8nqh3l7kjogpum.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

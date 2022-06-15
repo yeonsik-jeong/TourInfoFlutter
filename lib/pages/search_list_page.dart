@@ -1,36 +1,39 @@
 import 'dart:convert';
-import 'dart:io';
-
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:tour_info/model/content_type.dart';
-import 'package:tour_info/model/tour_site_info.dart';
+import 'package:tour_info/model/tour_site.dart';
 import 'package:http/http.dart' as http;
+import 'package:tour_info/pages/tour_site_detail_page.dart';
 import '../model/signugu.dart';
 import '../model/item.dart';
 
 class SearchListPage extends StatefulWidget {
   final String title;
+  final DatabaseReference databaseReference;
+  final String currentUserId;
 
-  const SearchListPage({Key? key, required this.title}): super(key: key);
+  const SearchListPage({Key? key, required this.title, required this.databaseReference, required this.currentUserId}):
+    super(key: key);
 
   @override
   State<SearchListPage> createState() => _SearchListPage();
 }
 
 class _SearchListPage extends State<SearchListPage> {
-  List<DropdownMenuItem<Item>> mSigunguList = List.empty(growable: true);
-  List<DropdownMenuItem<Item>> mContentTypeList = List.empty(growable: true);
-  List<TourSiteInfo> mTourSiteInfoList = List.empty(growable: true);
-
   final String TOURAPI_SERVICE_URL = "http://api.visitkorea.or.kr/openapi/service/rest/KorService/areaBasedList";
   final String TOURAPI_AUTH_KEY = "X68VZ4yzvaHhstVEgV2Pt/gySvKQb9i8i0Cy3afwIYkvOYTGE0uBCJWRFT/fvRAQVTtaWVkAKGlSju/HA31dxw==";
   final String AREA_CODE_SEOUL = "1";
+
+  List<DropdownMenuItem<Item>> mSigunguList = List.empty(growable: true);
+  List<DropdownMenuItem<Item>> mContentTypeList = List.empty(growable: true);
+  List<TourSite> mTourSiteList = List.empty(growable: true);
 
   Item? _selectedItemSigungu;
   Item? _selectedItemContentType;
   int _page = 1;
 
-  ScrollController? _scrollController;
+  ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -41,7 +44,13 @@ class _SearchListPage extends State<SearchListPage> {
     _selectedItemSigungu = mSigunguList[0].value;
     _selectedItemContentType = mContentTypeList[0].value;
 
-    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      if(_scrollController.offset >= _scrollController.position.maxScrollExtent
+        && !_scrollController.position.outOfRange) {
+        _page++;
+        _getTourSiteInfoList(_selectedItemSigungu!.value, _selectedItemContentType!.value, _page);
+      }
+    });
   }
 
   @override
@@ -84,9 +93,8 @@ class _SearchListPage extends State<SearchListPage> {
                   ElevatedButton(
                     onPressed: () {
                       _page = 1;
-                      mTourSiteInfoList.clear();
+                      mTourSiteList.clear();
                       _getTourSiteInfoList(_selectedItemSigungu!.value, _selectedItemContentType!.value, _page);
-                      // _getTourSiteInfoList(1, 1, _page);
                     },
                     child: Text("검색", style: TextStyle(color: Colors.white),),
                     style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.blueAccent)),
@@ -102,7 +110,7 @@ class _SearchListPage extends State<SearchListPage> {
                         child: Row(
                           children: <Widget>[
                             Hero(
-                              tag: 'TouristSite$index',
+                              tag: 'TourSiteInfo$index',
                               child: Container(
                                 margin: EdgeInsets.all(10),
                                 width: 100,
@@ -112,7 +120,7 @@ class _SearchListPage extends State<SearchListPage> {
                                   border: Border.all(color: Colors.black, width: 1),
                                   image: DecorationImage(
                                     fit: BoxFit.fill,
-                                    image: _downloadImage(mTourSiteInfoList[index].imagePath),
+                                    image: _downloadImage(mTourSiteList[index].imagePath),
                                   ),
                                 ),
                               ),
@@ -123,12 +131,12 @@ class _SearchListPage extends State<SearchListPage> {
                             Container(
                               child: Column(
                                 children: <Widget>[
-                                  Text(mTourSiteInfoList[index].title!,
+                                  Text(mTourSiteList[index].title!,
                                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                                   ),
-                                  Text("주소: ${mTourSiteInfoList[index].address}"),
-                                  (mTourSiteInfoList[index].tel != null)
-                                      ? Text("전화번호: ${mTourSiteInfoList[index].tel}")
+                                  Text("주소: ${mTourSiteList[index].address}"),
+                                  (mTourSiteList[index].tel != null)
+                                      ? Text("전화번호: ${mTourSiteList[index].tel}")
                                       : Container(),
                                 ],
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -137,11 +145,21 @@ class _SearchListPage extends State<SearchListPage> {
                             ),
                           ],
                         ),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => TourSiteDetailPage(
+                              title: '회원가입',
+                              databaseReference: widget.databaseReference,
+                              tourSite: mTourSiteList[index],
+                              index: index,
+                              currentUserId: widget.currentUserId,
+                            )
+                          ));
+                        },
                       ),
                     );
                   },
-                  itemCount: mTourSiteInfoList.length,
+                  itemCount: mTourSiteList.length,
                   controller: _scrollController,
                 ),
               )
@@ -179,7 +197,7 @@ class _SearchListPage extends State<SearchListPage> {
         List itemList = jsonResponse['response']['body']['items']['item'];
         for(var item in itemList) {
           setState(() {
-            mTourSiteInfoList.add(TourSiteInfo.fromJson(item));
+            mTourSiteList.add(TourSite.fromJson(item));
           });
         }
       }

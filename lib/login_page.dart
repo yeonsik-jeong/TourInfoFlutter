@@ -6,6 +6,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:tour_info/signup_page.dart';
 
+import 'material_main.dart';
 import 'model/user.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,9 +19,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
+  DatabaseReference? databaseReference;
+  DatabaseReference? _usersDatabaseReference;
+
   final TextEditingController _teIdController = TextEditingController();
   final TextEditingController _tePasswordController = TextEditingController();
-  DatabaseReference? _usersDatabaseReference;
   AnimationController? _animationController;
   Animation? _animation;
   double _opacity = 0.0;
@@ -28,11 +31,13 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _usersDatabaseReference = FirebaseDatabase.instance.ref().child('users');
+    databaseReference = FirebaseDatabase.instance.ref();
+    _usersDatabaseReference = databaseReference!.child('users');
+
     _animationController = AnimationController(vsync: this, duration: Duration(seconds: 3));
     _animation = Tween<double>(begin: 0, end: pi * 4).animate(_animationController!);
-
     _animationController!.repeat();
+
     Timer(Duration(seconds: 2), () {
       setState(() {
         _toggleOpacity(_opacity);
@@ -107,7 +112,10 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => SignupPage(title: '회원가입', databaseReference: _usersDatabaseReference!)
+                              builder: (context) => SignupPage(
+                                title: '회원가입',
+                                databaseReference: databaseReference!
+                              )
                             ));
                           },
                           child: Text("회원가입")
@@ -152,9 +160,13 @@ class _LoginPage extends State<LoginPage> with SingleTickerProviderStateMixin {
                 print("user.password:             ${user.password}");
                 print("passwordDigest.toString(): ${passwordDigest.toString()}");
                 if(user.password == passwordDigest.toString()) {
-                  Navigator.of(context).pushReplacementNamed('/main',
-                    arguments: _teIdController.value.text
-                  );
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => MaterialMain(
+                      title: '',
+                      databaseReference: databaseReference!,
+                      currentUserId: _teIdController.value.text,
+                    )
+                  ));
                 } else {
                   _generateDialog("비밀번호가 틀립니다.");
                 }

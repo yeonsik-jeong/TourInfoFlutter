@@ -17,9 +17,17 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPage extends State<SignupPage> {
+  DatabaseReference? _usersDatabaseReference;
+
   final TextEditingController _teIdController = TextEditingController();
   final TextEditingController _tePasswordController = TextEditingController();
   final TextEditingController _tePasswordCheckController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _usersDatabaseReference = widget.databaseReference.child("users");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,28 +121,31 @@ class _SignupPage extends State<SignupPage> {
       _generateDialog("비밀번호가 서로 틀립니다.");
     } else {
       var passwordDigest = sha1.convert(utf8.encode(_tePasswordController.value.text));
-      _insertUser(User(id: _teIdController.value.text, password: passwordDigest.toString(), createTime: DateTime.now().toIso8601String()));
+      _insertUser(User(
+        id: _teIdController.value.text,
+        password: passwordDigest.toString(),
+        createTime: DateTime.now().toIso8601String(),
+      ));
     }
   }
 
   void _insertUser(User user) {
-    widget.databaseReference.push()
-        .set(user.toJson())
-        .then((_) {
-      Navigator.of(context).pop();
-    }
+    _usersDatabaseReference!.push()
+      .set(user.toJson())
+      .then((_) {
+        Navigator.of(context).pop();
+      }
     );
   }
 
   void _generateDialog(String message) {
     showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Text(message),
-          );
-        }
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Text(message),
+        );
+      }
     );
   }
-
 }

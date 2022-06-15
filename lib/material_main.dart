@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:tour_info/pages/search_list_page.dart';
 import 'package:tour_info/pages/favorites_page.dart';
@@ -5,8 +6,11 @@ import 'package:tour_info/pages/settings_page.dart';
 
 class MaterialMain extends StatefulWidget {
   final String title;
+  final DatabaseReference databaseReference;
+  final String currentUserId;
 
-  const MaterialMain({Key? key, required this.title}) : super(key: key);
+  const MaterialMain({Key? key, required this.title, required this.databaseReference, required this.currentUserId}):
+    super(key: key);
 
   @override
   State<MaterialMain> createState() => _MaterialMain();
@@ -14,7 +18,7 @@ class MaterialMain extends StatefulWidget {
 
 class _MaterialMain extends State<MaterialMain> with SingleTickerProviderStateMixin {
   TabController? _tabController;
-  String? id;
+  // String? id;
 
   @override
   void initState() {
@@ -31,7 +35,7 @@ class _MaterialMain extends State<MaterialMain> with SingleTickerProviderStateMi
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    id = ModalRoute.of(context)!.settings.arguments as String;
+    // id = ModalRoute.of(context)!.settings.arguments as String;
 
     return Scaffold(
 /*      appBar: AppBar(
@@ -39,7 +43,11 @@ class _MaterialMain extends State<MaterialMain> with SingleTickerProviderStateMi
       ),*/
       body: TabBarView(
         children: <Widget>[
-          SearchListPage(title: "검색",),
+          SearchListPage(
+            title: "검색",
+            databaseReference: widget.databaseReference,
+            currentUserId: widget.currentUserId,
+          ),
           FavoritesPage(title: "즐겨찾기",),
           SettingsPage(title: "설정",),
         ],

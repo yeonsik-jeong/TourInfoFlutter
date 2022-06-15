@@ -38,6 +38,7 @@ dependencies:
   firebase_database: ^9.0.15
   crypto: ^3.0.2
   http: ^0.13.4
+  google_maps_flutter: ^2.1.8
 
 dev_dependencies:
   flutter_test:
@@ -65,6 +66,8 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/map_location.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

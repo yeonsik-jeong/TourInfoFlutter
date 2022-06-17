@@ -20,7 +20,7 @@ class TourSite {
     mapy = map['mapy'],
     imagePath = map['firstimage'];
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
       'title': title,

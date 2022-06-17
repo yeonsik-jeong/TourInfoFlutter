@@ -6,6 +6,7 @@ import 'package:tour_info/model/impairment_info.dart';
 import '../model/review.dart';
 import '../model/tour_site.dart';
 import '../my_sliver_persistent_header_delegate.dart';
+import '../util/util.dart';
 
 class TourSiteDetailPage extends StatefulWidget {
   final String title;
@@ -89,7 +90,7 @@ class _TourSiteDetailPage extends State<TourSiteDetailPage> {
                   child: Column(
                     children: <Widget>[
                       Hero(
-                        tag: 'TourSiteInfo${widget.index}',
+                        tag: 'TourSite${widget.index}',
                         child: Container(
                           width: 200,
                           height: 200,
@@ -98,7 +99,7 @@ class _TourSiteDetailPage extends State<TourSiteDetailPage> {
                             border: Border.all(color: Colors.black, width: 1),
                             image: DecorationImage(
                               fit: BoxFit.fill,
-                              image: _downloadImage(widget.tourSite.imagePath),
+                              image: Util.downloadImage(widget.tourSite.imagePath),
                             ),
                           ),
                         ),

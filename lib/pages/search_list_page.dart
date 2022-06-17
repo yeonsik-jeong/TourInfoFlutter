@@ -7,14 +7,22 @@ import 'package:http/http.dart' as http;
 import 'package:tour_info/pages/tour_site_detail_page.dart';
 import '../model/signugu.dart';
 import '../model/item.dart';
+import '../util/tour_site_sqlite_database_provider.dart';
+import '../util/util.dart';
 
 class SearchListPage extends StatefulWidget {
   final String title;
   final DatabaseReference databaseReference;
   final String currentUserId;
+  final TourSiteSQLiteDatabaseProvider databaseProvider;
 
-  const SearchListPage({Key? key, required this.title, required this.databaseReference, required this.currentUserId}):
-    super(key: key);
+  const SearchListPage({
+    Key? key,
+    required this.title,
+    required this.databaseReference,
+    required this.currentUserId,
+    required this.databaseProvider,
+  }): super(key: key);
 
   @override
   State<SearchListPage> createState() => _SearchListPage();
@@ -48,7 +56,7 @@ class _SearchListPage extends State<SearchListPage> {
       if(_scrollController.offset >= _scrollController.position.maxScrollExtent
         && !_scrollController.position.outOfRange) {
         _page++;
-        _getTourSiteInfoList(_selectedItemSigungu!.value, _selectedItemContentType!.value, _page);
+        _getTourSiteList(_selectedItemSigungu!.value, _selectedItemContentType!.value, _page);
       }
     });
   }
@@ -94,7 +102,7 @@ class _SearchListPage extends State<SearchListPage> {
                     onPressed: () {
                       _page = 1;
                       mTourSiteList.clear();
-                      _getTourSiteInfoList(_selectedItemSigungu!.value, _selectedItemContentType!.value, _page);
+                      _getTourSiteList(_selectedItemSigungu!.value, _selectedItemContentType!.value, _page);
                     },
                     child: Text("검색", style: TextStyle(color: Colors.white),),
                     style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.blueAccent)),
@@ -110,7 +118,7 @@ class _SearchListPage extends State<SearchListPage> {
                         child: Row(
                           children: <Widget>[
                             Hero(
-                              tag: 'TourSiteInfo$index',
+                              tag: 'TourSite$index',
                               child: Container(
                                 margin: EdgeInsets.all(10),
                                 width: 100,
@@ -120,7 +128,8 @@ class _SearchListPage extends State<SearchListPage> {
                                   border: Border.all(color: Colors.black, width: 1),
                                   image: DecorationImage(
                                     fit: BoxFit.fill,
-                                    image: _downloadImage(mTourSiteList[index].imagePath),
+                                    // image: _downloadImage(mTourSiteList[index].imagePath),
+                                    image: Util.downloadImage(mTourSiteList[index].imagePath),
                                   ),
                                 ),
                               ),
@@ -148,13 +157,19 @@ class _SearchListPage extends State<SearchListPage> {
                         onTap: () {
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => TourSiteDetailPage(
-                              title: '회원가입',
+                              title: '',
                               databaseReference: widget.databaseReference,
                               tourSite: mTourSiteList[index],
                               index: index,
                               currentUserId: widget.currentUserId,
                             )
                           ));
+                        },
+                        onDoubleTap: () {
+                          _createTourSite(context, mTourSiteList[index]);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("즐겨찾기에 추가했습니다."),)
+                          );
                         },
                       ),
                     );
@@ -171,7 +186,7 @@ class _SearchListPage extends State<SearchListPage> {
     );
   }
 
-  Future<void> _getTourSiteInfoList(int sigunguValue, int contentTypeValue, int page) async {
+  Future<void> _getTourSiteList(int sigunguValue, int contentTypeValue, int page) async {
     final qParams = {
       'serviceKey': TOURAPI_AUTH_KEY,
       'MobileOS': 'AND',
@@ -206,12 +221,8 @@ class _SearchListPage extends State<SearchListPage> {
     }
   }
 
-  ImageProvider _downloadImage(String? imagePath) {
-    if(imagePath == null) {
-      return AssetImage('assets/images/map_location.png');
-    } else {
-      return NetworkImage(imagePath);
-    }
+  void _createTourSite(BuildContext context, TourSite tourSite) {
+    widget.databaseProvider.insertTourSite(tourSite);
   }
 
   void _generateDialog(String message) {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:tour_info/pages/search_list_page.dart';
 import 'package:tour_info/pages/favorites_page.dart';
 import 'package:tour_info/pages/settings_page.dart';
+import 'package:tour_info/util/tour_site_sqlite_database_provider.dart';
 
 class MaterialMain extends StatefulWidget {
   final String title;
@@ -17,6 +18,7 @@ class MaterialMain extends StatefulWidget {
 }
 
 class _MaterialMain extends State<MaterialMain> with SingleTickerProviderStateMixin {
+  TourSiteSQLiteDatabaseProvider databaseProvider = TourSiteSQLiteDatabaseProvider.getDatabaseProvider;
   TabController? _tabController;
   // String? id;
 
@@ -47,9 +49,19 @@ class _MaterialMain extends State<MaterialMain> with SingleTickerProviderStateMi
             title: "검색",
             databaseReference: widget.databaseReference,
             currentUserId: widget.currentUserId,
+            databaseProvider: databaseProvider,
           ),
-          FavoritesPage(title: "즐겨찾기",),
-          SettingsPage(title: "설정",),
+          FavoritesPage(
+            title: "즐겨찾기",
+            databaseReference: widget.databaseReference,
+            currentUserId: widget.currentUserId,
+            databaseProvider: databaseProvider,
+          ),
+          SettingsPage(
+            title: "설정",
+            databaseReference: widget.databaseReference,
+            currentUserId: widget.currentUserId,
+          ),
         ],
         controller: _tabController,
       ),

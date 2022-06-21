@@ -5,7 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:tour_info/model/impairment_info.dart';
 import '../model/review.dart';
 import '../model/tour_site.dart';
-import '../my_sliver_persistent_header_delegate.dart';
+import '../util/my_sliver_persistent_header_delegate.dart';
 import '../util/util.dart';
 
 class TourSiteDetailPage extends StatefulWidget {

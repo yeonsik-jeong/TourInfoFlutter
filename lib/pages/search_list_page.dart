@@ -5,6 +5,7 @@ import 'package:tour_info/model/content_type.dart';
 import 'package:tour_info/model/tour_site.dart';
 import 'package:http/http.dart' as http;
 import 'package:tour_info/pages/tour_site_detail_page.dart';
+
 import '../model/signugu.dart';
 import '../model/item.dart';
 import '../util/tour_site_sqlite_database_provider.dart';

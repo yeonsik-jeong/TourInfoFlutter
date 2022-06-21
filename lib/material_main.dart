@@ -1,5 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tour_info/pages/search_list_page.dart';
 import 'package:tour_info/pages/favorites_page.dart';
 import 'package:tour_info/pages/settings_page.dart';
@@ -20,11 +22,18 @@ class MaterialMain extends StatefulWidget {
 class _MaterialMain extends State<MaterialMain> with SingleTickerProviderStateMixin {
   TourSiteSQLiteDatabaseProvider databaseProvider = TourSiteSQLiteDatabaseProvider.getDatabaseProvider;
   TabController? _tabController;
+  bool mPushEnabled = true;
   // String? id;
 
   @override
   void initState() {
     super.initState();
+    _loadSettings();
+    if(mPushEnabled) {
+      _getFcmToken();
+      _initFirebaseMessaging(context);
+    }
+
     _tabController = TabController(length: 3, vsync: this);
   }
 
@@ -76,5 +85,41 @@ class _MaterialMain extends State<MaterialMain> with SingleTickerProviderStateMi
         controller: _tabController,
       ),
     );
+  }
+
+  Future<void> _loadSettings() async {
+    SharedPreferences sharedPref = await SharedPreferences.getInstance();
+    var value = sharedPref.getBool("mPushEnabled");
+    setState(() {
+      mPushEnabled = (value == null)? true: value;
+    });
+  }
+
+  Future<void> _getFcmToken() async {
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    print("FCM Token: $fcmToken");
+  }
+
+  void _initFirebaseMessaging(BuildContext context) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(event.notification!.title!),
+            content: Text(event.notification!.body!),
+            actions: <Widget>[
+              TextButton(
+                child: Text("확인"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }
+              ),
+            ],
+          );
+        }
+      );
+    });
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage event) {});
   }
 }

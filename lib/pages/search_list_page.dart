@@ -31,7 +31,7 @@ class SearchListPage extends StatefulWidget {
 
 class _SearchListPage extends State<SearchListPage> {
   final String TOURAPI_SERVICE_URL = "http://api.visitkorea.or.kr/openapi/service/rest/KorService/areaBasedList";
-  final String TOURAPI_AUTH_KEY = "X68VZ4yzvaHhstVEgV2Pt/gySvKQb9i8i0Cy3afwIYkvOYTGE0uBCJWRFT/fvRAQVTtaWVkAKGlSju/HA31dxw==";
+  final String TOURAPI_AUTH_KEY = "";
   final String AREA_CODE_SEOUL = "1";
 
   List<DropdownMenuItem<Item>> mSigunguList = List.empty(growable: true);
